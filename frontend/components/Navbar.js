@@ -56,6 +56,14 @@ export default function Navbar() {
                   Chat
                 </Link>
 
+                <Link href="/mindfulness"
+                  className={`px-4 py-2 rounded-lg transition-colors duration-200 
+                    ${router.pathname === '/mindfulness' 
+                      ? 'bg-blue-50 text-blue-600' 
+                      : 'text-gray-600 hover:text-gray-900'}`}>
+                  Mindfulness
+                </Link>
+
                 {/* Profile Dropdown */}
                 <div className="relative">
                   <motion.button

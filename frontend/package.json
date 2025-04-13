@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "date-fns": "^4.1.0",
+    "elevenlabs": "^1.56.0",
     "firebase": "^11.5.0",
     "framer-motion": "^12.6.2",
     "mongoose": "^8.13.1",
