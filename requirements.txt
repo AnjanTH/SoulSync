@@ -8,4 +8,5 @@ transformers
 langchain-community
 sentence-transformers
 chromadb
-huggingface-hub 
+huggingface-hub
+pypdf
