@@ -92,6 +92,26 @@ If the user's input is a greeting such as "hi", "hello", or "hey":
     )
     return qa_chain
 
+# Initialize the application
+def init_app():
+    global qa_chain, vector_db
+    
+    print("Initializing Chatbot...")
+    llm = initialize_llm()
+    
+    db_path = "./chroma_db"
+    
+    if not os.path.exists(db_path) or not os.listdir(db_path):
+        vector_db = create_vector_db()
+    else:
+        embeddings = HuggingFaceEmbeddings(model_name='sentence-transformers/all-MiniLM-L6-v2')
+        vector_db = Chroma(persist_directory=db_path, embedding_function=embeddings)
+    
+    qa_chain = setup_qa_chain(vector_db, llm)
+
+# Initialize the application
+init_app()
+
 @app.route('/api/chat', methods=['POST'])
 def chat():
     try:
@@ -120,23 +140,6 @@ def mindfulness():
         return jsonify({'response': response})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
-
-@app.before_first_request
-def initialize():
-    global qa_chain, vector_db
-    
-    print("Initializing Chatbot...")
-    llm = initialize_llm()
-    
-    db_path = "./python/chroma_db"
-    
-    if not os.path.exists(db_path) or not os.listdir(db_path):
-        vector_db = create_vector_db()
-    else:
-        embeddings = HuggingFaceEmbeddings(model_name='sentence-transformers/all-MiniLM-L6-v2')
-        vector_db = Chroma(persist_directory=db_path, embedding_function=embeddings)
-    
-    qa_chain = setup_qa_chain(vector_db, llm)
 
 if __name__ == "__main__":
     port = int(os.environ.get('PORT', 5000))
