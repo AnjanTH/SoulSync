@@ -193,6 +193,7 @@ export default function ChatInterface({ isSidebarOpen, toggleSidebar }) {
             messages={messages}
             onSelectChat={setSelectedDate}
             selectedDate={selectedDate}
+            
           />
         </div>
       </div>
