@@ -4,7 +4,7 @@ services:
     env: python
     rootDir: python
     buildCommand: pip install -r ../requirements.txt
-    startCommand: gunicorn app:app --bind 0.0.0.0:$PORT
+    startCommand: cd python && gunicorn --bind 0.0.0.0:$PORT app:app
     envVars:
       - key: GROQ_API_KEY
         sync: false
