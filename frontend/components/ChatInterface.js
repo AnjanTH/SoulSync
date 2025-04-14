@@ -23,6 +23,9 @@ export default function ChatInterface({ isSidebarOpen, toggleSidebar }) {
   // Add new state for selected date
   const [selectedDate, setSelectedDate] = useState(format(new Date(), 'yyyy-MM-dd'));
 
+  // Add new state for showing history modal
+  const [showHistory, setShowHistory] = useState(false);
+
   const fetchLatestMessages = useCallback(async () => {
     if (!user || !autoRefresh) return;
 
@@ -155,10 +158,10 @@ export default function ChatInterface({ isSidebarOpen, toggleSidebar }) {
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0 }}
         transition={{ duration: 0.3 }}
-        className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'} mb-4`}
+        className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'} mb-3 sm:mb-4`}
       >
         <div
-          className={`max-w-[85%] p-6 ${
+          className={`max-w-[90%] sm:max-w-[85%] p-4 sm:p-6 ${
             message.sender === 'user'
               ? 'bg-blue-600 text-white'
               : message.isError
@@ -166,10 +169,10 @@ export default function ChatInterface({ isSidebarOpen, toggleSidebar }) {
               : 'bg-white border border-gray-200'
           } rounded-2xl shadow-lg`}
         >
-          <p className="text-base whitespace-pre-wrap leading-relaxed">{message.text}</p>
+          <p className="text-sm sm:text-base whitespace-pre-wrap leading-relaxed">{message.text}</p>
           {formattedTime && (
-            <p className="text-xs mt-2 opacity-70 flex items-center gap-1">
-              <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <p className="text-[10px] sm:text-xs mt-2 opacity-70 flex items-center gap-1">
+              <svg className="w-2.5 h-2.5 sm:w-3 sm:h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
               {formattedTime}
@@ -183,96 +186,123 @@ export default function ChatInterface({ isSidebarOpen, toggleSidebar }) {
   // Update the layout section of the return statement:
   return (
     <div className="flex h-full w-full">
-      {/* Chat History Sidebar */}
-      <div className={`
-        fixed inset-y-0 left-0 z-40 w-72 bg-white border-r border-gray-200 
-        transform transition-transform duration-300 ease-in-out lg:relative lg:translate-x-0
-        ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}
-      `}>
-        <div className="p-4 border-b border-gray-200">
-          <h2 className="text-xl font-bold text-gray-900 mb-4">Chat History</h2>
-          <div className="space-y-2">
-            <button
-              onClick={() => {
-                setMessages([]);
-                setSelectedDate(format(new Date(), 'yyyy-MM-dd'));
-              }}
-              className="w-full px-4 py-2 text-left text-sm font-medium text-blue-600 hover:bg-blue-50 rounded-lg transition-colors flex items-center gap-2"
-            >
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-              </svg>
-              New Chat
-            </button>
-            <button
-              onClick={() => setSelectedDate(format(new Date(), 'yyyy-MM-dd'))}
-              className={`w-full px-4 py-2 text-left text-sm font-medium rounded-lg transition-colors flex items-center gap-2
-                ${selectedDate === format(new Date(), 'yyyy-MM-dd')
-                  ? 'bg-blue-50 text-blue-600'
-                  : 'text-gray-700 hover:bg-gray-50'}`}
-            >
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              Today's Chat
-            </button>
-          </div>
-        </div>
-        <div className="flex-1 overflow-y-auto p-4">
-          <div className="space-y-4">
-            <ChatHistory 
-              messages={messages}
-              onSelectChat={setSelectedDate}
-              selectedDate={selectedDate}
-            />
-          </div>
+      {/* Desktop Chat History Sidebar - Fixed width, always visible on desktop */}
+      <div className="hidden md:block w-80 flex-shrink-0 border-r border-gray-200">
+        <div className="h-full">
+          <ChatHistory 
+            messages={messages}
+            onSelectChat={setSelectedDate}
+            selectedDate={selectedDate}
+          />
         </div>
       </div>
 
-      {/* Main Chat Area */}
-      <div className="flex-1 flex flex-col min-w-0">
-        {error && <ErrorMessage error={error} onClose={() => setError(null)} />}
-        <div className="flex-1 overflow-hidden bg-white shadow-xl m-2 lg:m-4 rounded-2xl flex flex-col border border-gray-100">
-          <div className="p-6 border-b border-gray-100">
-            <h1 className="text-2xl font-bold text-gray-900">
-              {selectedDate === format(new Date(), 'yyyy-MM-dd')
-                ? 'Today\'s Chat'
-                : format(new Date(selectedDate), 'MMMM d, yyyy')}
-            </h1>
-          </div>
+      {/* Main Content Area - Takes remaining width */}
+      <div className="flex-1 w-0 flex flex-col">
+        {/* Header */}
+        <div className="flex items-center justify-between p-4 border-b border-gray-200">
+          <h1 className="text-xl font-bold text-gray-900">
+            {selectedDate === format(new Date(), 'yyyy-MM-dd')
+              ? 'Today\'s Chat'
+              : format(new Date(selectedDate), 'MMMM d, yyyy')}
+          </h1>
+          {/* Mobile History Button */}
+          <button
+            onClick={() => setShowHistory(true)}
+            className="md:hidden p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            aria-label="Show chat history"
+          >
+            <svg className="w-5 h-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+        </div>
 
-          {/* Increased padding and max width for messages */}
-          <div className="flex-1 overflow-y-auto px-12 py-8">
-            <div className="max-w-6xl mx-auto space-y-6">
-              <AnimatePresence>
-                {filteredMessages?.map((message) => (
-                  <MessageBubble key={message._id} message={message} />
-                ))}
-              </AnimatePresence>
-              <div ref={messagesEndRef} />
-            </div>
-          </div>
-
-          {/* Increased width for input form */}
-          <form onSubmit={handleSubmit} className="p-8 border-t border-gray-100 bg-white">
-            <div className="max-w-6xl mx-auto flex space-x-4">
-              <input
-                type="text"
-                value={prompt}
-                onChange={handleInputChange}
-                disabled={isSending}
-                className="flex-1 px-8 py-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all disabled:opacity-50"
-                placeholder="Type your message..."
+        {/* Mobile Chat History Modal */}
+        <AnimatePresence>
+          {showHistory && (
+            <>
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setShowHistory(false)}
+                className="md:hidden fixed inset-0 bg-black bg-opacity-50 z-40"
               />
-              <button
-                type="submit"
-                disabled={isSending}
-                className="px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl transition-colors disabled:opacity-50 min-w-[120px]"
+              <motion.div
+                initial={{ y: "100%" }}
+                animate={{ y: 0 }}
+                exit={{ y: "100%" }}
+                transition={{ type: "spring", bounce: 0, duration: 0.4 }}
+                className="md:hidden fixed bottom-0 left-0 right-0 w-full bg-white shadow-xl z-50 flex flex-col rounded-t-xl"
+                style={{ height: 'calc(100vh - 4rem)' }}
               >
-                {isSending ? 'Sending...' : 'Send'}
-              </button>
+                <div className="flex items-center justify-between p-4 border-b border-gray-200">
+                  <h2 className="text-lg font-semibold text-gray-900"></h2>
+                  <button
+                    onClick={() => setShowHistory(false)}
+                    className="p-2 hover:bg-gray-100 rounded-lg"
+                    aria-label="Close history"
+                  >
+                    <svg className="w-5 h-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+                <div className="flex-1 overflow-y-auto">
+                  <ChatHistory 
+                    messages={messages}
+                    onSelectChat={(date) => {
+                      setSelectedDate(date);
+                      setShowHistory(false);
+                    }}
+                    selectedDate={selectedDate}
+                  />
+                </div>
+              </motion.div>
+            </>
+          )}
+        </AnimatePresence>
+
+        {/* Main Chat Area */}
+        <div className="flex-1 flex flex-col overflow-hidden">
+          {error && <ErrorMessage error={error} onClose={() => setError(null)} />}
+          <div className="flex-1 overflow-y-auto bg-white shadow-xl mx-2 my-2 sm:m-4 rounded-2xl flex flex-col border border-gray-100">
+            {/* Messages container */}
+            <div className="flex-1 overflow-y-auto px-4 sm:px-8 lg:px-12 py-4 sm:py-6 lg:py-8">
+              <div className="max-w-6xl mx-auto space-y-4 sm:space-y-6">
+                <AnimatePresence>
+                  {filteredMessages?.map((message) => (
+                    <MessageBubble key={message._id} message={message} />
+                  ))}
+                </AnimatePresence>
+                <div ref={messagesEndRef} />
+              </div>
             </div>
-          </form>
+
+            {/* Input form */}
+            <div className="flex-shrink-0 border-t border-gray-100 bg-white">
+              <form onSubmit={handleSubmit} className="p-4 sm:p-6 lg:p-8">
+                <div className="max-w-6xl mx-auto flex space-x-2 sm:space-x-4">
+                  <input
+                    type="text"
+                    value={prompt}
+                    onChange={handleInputChange}
+                    disabled={isSending}
+                    className="flex-1 px-4 sm:px-6 lg:px-8 py-3 sm:py-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all disabled:opacity-50"
+                    placeholder="Type your message..."
+                  />
+                  <button
+                    type="submit"
+                    disabled={isSending}
+                    className="px-4 sm:px-6 lg:px-8 py-3 sm:py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl transition-colors disabled:opacity-50 whitespace-nowrap"
+                  >
+                    {isSending ? 'Sending...' : 'Send'}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
         </div>
       </div>
     </div>

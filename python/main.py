@@ -1,3 +1,5 @@
+import os
+from dotenv import load_dotenv
 from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_community.document_loaders import PyPDFLoader, DirectoryLoader
 from langchain_community.vectorstores import Chroma
@@ -6,12 +8,19 @@ from langchain.prompts import PromptTemplate
 from langchain.memory import ConversationBufferMemory
 from langchain_groq import ChatGroq
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-import os
+
+# Load environment variables
+load_dotenv()
+
+# Use environment variable for API key
+groq_api_key = os.getenv('GROQ_API_KEY')
+if not groq_api_key:
+    raise ValueError("GROQ_API_KEY environment variable is not set")
 
 def initialize_llm():
     llm = ChatGroq(
         temperature=0,
-        groq_api_key="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",
+        groq_api_key=groq_api_key,
         model_name="llama-3.3-70b-versatile"
     )
     return llm

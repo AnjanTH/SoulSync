@@ -72,7 +72,7 @@ export default function ChangePassword() {
   }
 
   return (
-    <Layout>
+   
       <div className="min-h-[80vh] flex items-center justify-center px-4">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -169,6 +169,6 @@ export default function ChangePassword() {
           </div>
         </motion.div>
       </div>
-    </Layout>
+    
   );
 }

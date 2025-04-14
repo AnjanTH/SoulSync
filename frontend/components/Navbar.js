@@ -10,6 +10,7 @@ export default function Navbar() {
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Handle hydration mismatch
   useEffect(() => {
@@ -21,9 +22,30 @@ export default function Navbar() {
   }
 
   const handleLogout = async () => {
-    await auth.signOut();
-    router.push('/');
+    try {
+      await auth.signOut();
+      router.push('/');
+    } catch (error) {
+      console.error('Error logging out:', error);
+    }
   };
+
+  // Show loading state
+  if (loading) {
+    return (
+      <nav className="bg-white/80 backdrop-blur-sm shadow-sm sticky top-0 z-50">
+        <div className="container mx-auto px-4">
+          <div className="flex justify-between items-center h-16">
+            <Link href="/"
+              className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              SoulSync AI
+            </Link>
+            <div className="animate-pulse w-48 h-8 bg-gray-200 rounded"></div>
+          </div>
+        </div>
+      </nav>
+    );
+  }
 
   return (
     <nav className="bg-white/80 backdrop-blur-sm shadow-sm sticky top-0 z-50">
@@ -35,19 +57,26 @@ export default function Navbar() {
           >
             <Link href="/"
               className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-              AuraMind AI
+              SoulSync AI
             </Link>
           </motion.div>
 
+          {/* Desktop Menu */}
           <div className="hidden md:flex items-center space-x-4">
-            {loading ? (
-              <div className="animate-pulse w-20 h-8 bg-gray-200 rounded"></div>
-            ) : user ? (
+            {user ? (
               <motion.div 
                 className="flex items-center space-x-4"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
               >
+                <Link href="/dashboard"
+                  className={`px-4 py-2 rounded-lg transition-colors duration-200 
+                    ${router.pathname === '/dashboard' 
+                      ? 'bg-blue-50 text-blue-600' 
+                      : 'text-gray-600 hover:text-gray-900'}`}>
+                  Dashboard
+                </Link>
+
                 <Link href="/chat"
                   className={`px-4 py-2 rounded-lg transition-colors duration-200 
                     ${router.pathname === '/chat' 
@@ -121,7 +150,90 @@ export default function Navbar() {
               </motion.div>
             )}
           </div>
+
+          {/* Mobile Menu Button */}
+          <div className="md:hidden">
+            <button
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="p-2 rounded-lg text-gray-600 hover:text-gray-900 hover:bg-gray-100 focus:outline-none"
+            >
+              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                {isMobileMenuOpen ? (
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                ) : (
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                )}
+              </svg>
+            </button>
+          </div>
         </div>
+
+        {/* Mobile Menu */}
+        <AnimatePresence>
+          {isMobileMenuOpen && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              className="md:hidden border-t border-gray-100"
+            >
+              <div className="py-2 space-y-1">
+                {user ? (
+                  <>
+                    <Link href="/dashboard"
+                      className={`block px-4 py-2 text-base transition-colors duration-200 
+                        ${router.pathname === '/dashboard' 
+                          ? 'bg-blue-50 text-blue-600' 
+                          : 'text-gray-600 hover:bg-gray-50'}`}
+                      onClick={() => setIsMobileMenuOpen(false)}>
+                      Dashboard
+                    </Link>
+                    <Link href="/chat"
+                      className={`block px-4 py-2 text-base transition-colors duration-200 
+                        ${router.pathname === '/chat' 
+                          ? 'bg-blue-50 text-blue-600' 
+                          : 'text-gray-600 hover:bg-gray-50'}`}
+                      onClick={() => setIsMobileMenuOpen(false)}>
+                      Chat
+                    </Link>
+                    <Link href="/mindfulness"
+                      className={`block px-4 py-2 text-base transition-colors duration-200 
+                        ${router.pathname === '/mindfulness' 
+                          ? 'bg-blue-50 text-blue-600' 
+                          : 'text-gray-600 hover:bg-gray-50'}`}
+                      onClick={() => setIsMobileMenuOpen(false)}>
+                      Mindfulness
+                    </Link>
+                    <Link href="/profile"
+                      className="block px-4 py-2 text-base text-gray-600 hover:bg-gray-50"
+                      onClick={() => setIsMobileMenuOpen(false)}>
+                      Profile
+                    </Link>
+                    <Link href="/settings"
+                      className="block px-4 py-2 text-base text-gray-600 hover:bg-gray-50"
+                      onClick={() => setIsMobileMenuOpen(false)}>
+                      Settings
+                    </Link>
+                    <button
+                      onClick={() => {
+                        handleLogout();
+                        setIsMobileMenuOpen(false);
+                      }}
+                      className="block w-full text-left px-4 py-2 text-base text-red-600 hover:bg-red-50">
+                      Logout
+                    </button>
+                  </>
+                ) : (
+                  <Link href="/login"
+                    className="block px-4 py-2 text-base text-gray-600 hover:bg-gray-50"
+                    onClick={() => setIsMobileMenuOpen(false)}>
+                    Login
+                  </Link>
+                )}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </nav>
   );

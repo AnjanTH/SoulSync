@@ -10,7 +10,7 @@ export default function Footer() {
           <div className="space-y-4">
             <h3 className="font-bold text-gray-800 text-lg">About</h3>
             <p className="text-gray-600 text-sm">
-              AuraMind AI Chatbot is your trusted companion for mental health support and guidance.
+              SoulSync AI Chatbot is your trusted companion for mental health support and guidance.
             </p>
           </div>
 
@@ -40,7 +40,7 @@ export default function Footer() {
           <div className="space-y-4">
             <h3 className="font-bold text-gray-800 text-lg">Contact</h3>
             <ul className="space-y-2">
-              <li className="text-gray-600 text-sm">Email: support@auramindai.com</li>
+              <li className="text-gray-600 text-sm">Email: support@soulsyncai.com</li>
               <li className="text-gray-600 text-sm">Phone: (123) 456-7890</li>
             </ul>
           </div>
@@ -78,7 +78,7 @@ export default function Footer() {
         {/* Copyright */}
         <div className="mt-8 pt-8 border-t border-gray-200">
           <p className="text-center text-gray-500 text-sm">
-            © {new Date().getFullYear()} AuraMind AI Chatbot. All rights reserved.
+            © {new Date().getFullYear()} SoulSync AI. All rights reserved.
           </p>
         </div>
       </div>
