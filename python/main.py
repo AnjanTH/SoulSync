@@ -1,5 +1,7 @@
 import os
 from dotenv import load_dotenv
+from flask import Flask, request, jsonify
+from flask_cors import CORS
 from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_community.document_loaders import PyPDFLoader, DirectoryLoader
 from langchain_community.vectorstores import Chroma
@@ -8,9 +10,14 @@ from langchain.prompts import PromptTemplate
 from langchain.memory import ConversationBufferMemory
 from langchain_groq import ChatGroq
 from langchain.text_splitter import RecursiveCharacterTextSplitter
+from mindfulness_chat import chat_instance
 
 # Load environment variables
 load_dotenv()
+
+# Initialize Flask app
+app = Flask(__name__)
+CORS(app)
 
 # Use environment variable for API key
 groq_api_key = os.getenv('GROQ_API_KEY')
@@ -25,16 +32,18 @@ def initialize_llm():
     )
     return llm
 
+# Initialize global variables
+qa_chain = None
+vector_db = None
+
 def create_vector_db():
-    loader = DirectoryLoader("./data", glob='*.pdf', loader_cls=PyPDFLoader)
+    loader = DirectoryLoader("./python/data", glob='*.pdf', loader_cls=PyPDFLoader)
     documents = loader.load()
     text_splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=50)
     texts = text_splitter.split_documents(documents)
     embeddings = HuggingFaceEmbeddings(model_name='sentence-transformers/all-MiniLM-L6-v2')
-    vector_db = Chroma.from_documents(texts, embeddings, persist_directory='./chroma_db')
+    vector_db = Chroma.from_documents(texts, embeddings, persist_directory='./python/chroma_db')
     vector_db.persist()
-    
-    print("ChromaDB created and data saved")
     return vector_db
 
 def setup_qa_chain(vector_db, llm):
@@ -83,11 +92,43 @@ If the user's input is a greeting such as "hi", "hello", or "hey":
     )
     return qa_chain
 
-def main():
+@app.route('/api/chat', methods=['POST'])
+def chat():
+    try:
+        data = request.json
+        query = data.get('message')
+        
+        if not query:
+            return jsonify({'error': 'No message provided'}), 400
+            
+        response = qa_chain.invoke({"question": query})
+        return jsonify({'response': response['answer']})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/mindfulness', methods=['POST'])
+def mindfulness():
+    try:
+        data = request.json
+        message = data.get('message')
+        exercise_type = data.get('exerciseType')
+        
+        if not message or not exercise_type:
+            return jsonify({'error': 'Message and exercise type are required'}), 400
+            
+        response = chat_instance.process_chat(message, exercise_type)
+        return jsonify({'response': response})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.before_first_request
+def initialize():
+    global qa_chain, vector_db
+    
     print("Initializing Chatbot...")
     llm = initialize_llm()
     
-    db_path = "./chroma_db"
+    db_path = "./python/chroma_db"
     
     if not os.path.exists(db_path) or not os.listdir(db_path):
         vector_db = create_vector_db()
@@ -96,14 +137,7 @@ def main():
         vector_db = Chroma(persist_directory=db_path, embedding_function=embeddings)
     
     qa_chain = setup_qa_chain(vector_db, llm)
-    
-    while True:
-        query = input("\nHuman: ")
-        if query.lower() == "exit":
-            print("Chatbot: Take care of yourself, goodbye!")
-            break
-        response = qa_chain.invoke({"question": query})
-        print(f"Chatbot: {response['answer']}")
 
 if __name__ == "__main__":
-    main()
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port)
