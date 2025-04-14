@@ -43,7 +43,7 @@ export default function ChatInterface({ isSidebarOpen, toggleSidebar }) {
           const newMessages = data.messages.filter(
             newMsg => !prevMessages.some(existing => existing._id === newMsg._id)
           );
-          if (newMessages.length === 0) return prevMessages; // Prevent unnecessary re-renders
+          if (newMessages.length === 0) return prevMessages;
           return [...prevMessages, ...newMessages];
         });
         lastMessageTimestamp.current = data.messages[data.messages.length - 1].createdAt;
@@ -53,12 +53,10 @@ export default function ChatInterface({ isSidebarOpen, toggleSidebar }) {
     }
   }, [user, autoRefresh]);
 
-  // Remove existing useEffect for refresh interval and replace with this:
   useEffect(() => {
     if (!user) return;
-    
-    fetchLatestMessages(); // Fetch only on mount
-  }, [user]);
+    fetchLatestMessages();
+  }, [user, fetchLatestMessages]);
 
   // Debounce the input change handler
   const handleInputChange = (e) => {
@@ -182,6 +180,8 @@ export default function ChatInterface({ isSidebarOpen, toggleSidebar }) {
       </motion.div>
     );
   });
+
+  MessageBubble.displayName = 'MessageBubble';
 
   // Update the layout section of the return statement:
   return (
