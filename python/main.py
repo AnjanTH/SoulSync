@@ -37,12 +37,12 @@ qa_chain = None
 vector_db = None
 
 def create_vector_db():
-    loader = DirectoryLoader("./python/data", glob='*.pdf', loader_cls=PyPDFLoader)
+    loader = DirectoryLoader("./data", glob='*.pdf', loader_cls=PyPDFLoader)
     documents = loader.load()
     text_splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=50)
     texts = text_splitter.split_documents(documents)
     embeddings = HuggingFaceEmbeddings(model_name='sentence-transformers/all-MiniLM-L6-v2')
-    vector_db = Chroma.from_documents(texts, embeddings, persist_directory='./python/chroma_db')
+    vector_db = Chroma.from_documents(texts, embeddings, persist_directory='./chroma_db')
     vector_db.persist()
     return vector_db
 
