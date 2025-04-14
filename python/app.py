@@ -12,6 +12,9 @@ from mindfulness_chat import chat_instance
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+# Get port from environment variable with fallback to 5000 for local development
+port = int(os.environ.get("PORT", 5000))
+
 app = Flask(__name__)
 
 # Configure CORS for all routes
@@ -171,6 +174,11 @@ def health_check():
 
 if __name__ == '__main__':
     print("Starting Flask server...")
+    print(f"Server running on port: {port}")
     print("Available endpoints:")
+    print(" * /api/chat [POST]")
+    print(" * /api/mindfulness-chat [POST]")
+    print(" * /api/messages [GET]")
+    print(" * /health [GET]")
     
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    app.run(debug=True, host='0.0.0.0', port=port)
