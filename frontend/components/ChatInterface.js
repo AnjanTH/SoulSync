@@ -203,7 +203,7 @@ export default function ChatInterface({ isSidebarOpen, toggleSidebar }) {
         <div className="flex items-center justify-between p-4 border-b border-gray-200">
           <h1 className="text-xl font-bold text-gray-900">
             {selectedDate === format(new Date(), 'yyyy-MM-dd')
-              ? 'Today\'s Chat'
+              ? "Today's Chat"
               : format(new Date(selectedDate), 'MMMM d, yyyy')}
           </h1>
           {/* Mobile History Button */}
