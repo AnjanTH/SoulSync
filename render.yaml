@@ -3,10 +3,10 @@ services:
     name: mental-ai-chatbot-backend
     env: python
     rootDir: python
-    buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn --bind 0.0.0.0:$PORT python.main:app
+    buildCommand: pip install -r ../requirements.txt
+    startCommand: gunicorn app:app --bind 0.0.0.0:$PORT
     envVars:
       - key: GROQ_API_KEY
         sync: false
       - key: PYTHON_VERSION
-        value: 3.11.0 
+        value: 3.11.0

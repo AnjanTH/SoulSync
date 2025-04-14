@@ -17,7 +17,8 @@ app = Flask(__name__)
 # Configure CORS for all routes
 CORS(app, resources={
     r"/api/*": {
-        "origins": ["http://localhost:3000"],  # Add your frontend URL
+        "origins": ["http://localhost:3000",  
+        "https://ai-soul-sync.vercel.app/"],
         "methods": ["POST", "OPTIONS"],
         "allow_headers": ["Content-Type", "Accept"]
     }
