@@ -5,7 +5,7 @@ langchain
 langchain-groq
 gunicorn
 transformers
-
+langchain-community
 sentence-transformers
 chromadb
 huggingface-hub 
