@@ -3,6 +3,10 @@ from langchain_groq import ChatGroq
 from langchain.memory import ConversationBufferMemory
 from langchain.prompts import ChatPromptTemplate, MessagesPlaceholder
 import os
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
 
 # Exercise-specific prompts
 EXERCISE_PROMPTS = {
@@ -100,7 +104,7 @@ class MindfulnessChat:
     def __init__(self):
         self.llm = ChatGroq(
             temperature=0,  # Using 0 for more consistent responses
-            groq_api_key="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",
+            groq_api_key=os.getenv('GROQ_API_KEY'),
             model_name="llama-3.3-70b-versatile"  # Using the same model as main.py
         )
         self.memories = {}  # Separate memory for each exercise type
